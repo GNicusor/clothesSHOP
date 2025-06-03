@@ -31,7 +31,7 @@ public class VerificationCode {
         this.user = user;
         this.code = UUID.randomUUID().toString();
         this.createdAt = LocalDateTime.now();
-        this.expiresAt = createdAt.plusMinutes(30);
+        this.expiresAt = createdAt.plusMinutes(5);
     }
 
     public UUID getId() {

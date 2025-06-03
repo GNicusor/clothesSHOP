@@ -21,9 +21,11 @@ import shared.VerifyRequest;
 
 import java.util.Optional;
 
+
+
 @RestController
 @CrossOrigin
-@RequestMapping("/sun/auth")
+@RequestMapping("/login")
 public class ControllerAuthentication {
 
     @Autowired

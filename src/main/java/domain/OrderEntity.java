@@ -8,7 +8,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "orders")
-public class Order {
+public class OrderEntity {
 
     @Id
     @Column(name = "order_id", length = 36, nullable = false, updatable = false)
@@ -29,9 +29,9 @@ public class Order {
     )
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    protected Order() { }
+    protected OrderEntity() { }
 
-    public Order(String orderId) {
+    public OrderEntity(String orderId) {
         this.orderId = Objects.requireNonNull(orderId, "Order ID cannot be null");
         this.orderDate = LocalDateTime.now();
         this.status = OrderStatus.PENDING;
@@ -77,6 +77,7 @@ public class Order {
         PROCESSING,
         SHIPPED,
         DELIVERED,
+        FAILED,
         CANCELLED
     }
 
@@ -85,8 +86,8 @@ public class Order {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Order order = (Order) o;
-        return orderId.equals(order.orderId);
+        OrderEntity orderEntity = (OrderEntity) o;
+        return orderId.equals(orderEntity.orderId);
     }
 
     @Override

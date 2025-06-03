@@ -18,7 +18,7 @@ public class OrderItem {
     private Long id;
 
     @Column(name = "clothes_id", nullable = false, length = 36)
-    private String clothesId;
+    private Long clothesId;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -41,7 +41,7 @@ public class OrderItem {
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    private OrderEntity orderEntity;
 
     // ===== Constructors =====
 
@@ -50,7 +50,7 @@ public class OrderItem {
     /**
      * Copy relevant fields from a Clothes instance at purchase time.
      */
-    public OrderItem(Clothes clothes, int quantity, Order order) {
+    public OrderItem(Clothes clothes, int quantity, OrderEntity orderEntity) {
         if (quantity < 1) throw new IllegalArgumentException("Quantity must be ≥ 1");
 
         this.clothesId = clothes.getId();
@@ -59,7 +59,7 @@ public class OrderItem {
         this.forChildren = clothes.isForChildren();
         this.price = clothes.getPrice();
         this.quantity = quantity;
-        this.order = Objects.requireNonNull(order, "Order cannot be null");
+        this.orderEntity = Objects.requireNonNull(orderEntity, "Order cannot be null");
     }
 
     // ===== Getters & Setters =====
@@ -68,7 +68,7 @@ public class OrderItem {
         return id;
     }
 
-    public String getClothesId() {
+    public Long getClothesId() {
         return clothesId;
     }
 
@@ -88,20 +88,18 @@ public class OrderItem {
         return price;
     }
 
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public Order getOrder() {
-        return order;
+    public OrderEntity getOrder() {
+        return orderEntity;
     }
 
     public void setQuantity(int quantity) {
         if (quantity < 1) throw new IllegalArgumentException("Quantity must be ≥ 1");
         this.quantity = quantity;
     }
-
-    // ===== Business Logic =====
 
     /**
      * Compute the total price for this line (price × quantity).
