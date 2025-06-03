@@ -39,9 +39,9 @@ public class OrderItem {
     /**
      * Many OrderItems belong to one Order.
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
-    private OrderEntity orderEntity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")   // whatever your FK column is
+    private OrderEntity order;
 
     // ===== Constructors =====
 
@@ -59,7 +59,7 @@ public class OrderItem {
         this.forChildren = clothes.isForChildren();
         this.price = clothes.getPrice();
         this.quantity = quantity;
-        this.orderEntity = Objects.requireNonNull(orderEntity, "Order cannot be null");
+        this.order = Objects.requireNonNull(orderEntity, "Order cannot be null");
     }
 
     // ===== Getters & Setters =====
@@ -93,7 +93,7 @@ public class OrderItem {
     }
 
     public OrderEntity getOrder() {
-        return orderEntity;
+        return order;
     }
 
     public void setQuantity(int quantity) {
