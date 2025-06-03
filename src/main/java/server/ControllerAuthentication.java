@@ -40,7 +40,6 @@ public class ControllerAuthentication {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest req) {
-        //checking if we already got in our database a user with that email , if yes , return the message
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Email is already in use");
@@ -86,17 +85,14 @@ public class ControllerAuthentication {
                     .body("There is no user with that username");
         }
         User user = userOpt.get();
-
         if (!user.isVerified()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("The account is not verified");
         }
-
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Incorrect password");
         }
-
         return ResponseEntity.ok("User logged in successfully");
     }
 }
