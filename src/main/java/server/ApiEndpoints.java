@@ -40,13 +40,13 @@ public class ApiEndpoints {
         Clothes saved = clothesRepository.save(clothes);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
-    
+
 
     @PostMapping("/users/{userId}/cart/{clothesId}/add")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addOneToCart(
-            @PathVariable Long userId,
-            @PathVariable Long clothesId
+            @PathVariable("userId")   Long userId,
+            @PathVariable("clothesId") Long clothesId
     ) {
         try {
             cartService.addOneItem(userId, clothesId);
