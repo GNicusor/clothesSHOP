@@ -35,6 +35,13 @@ public class ApiEndpoints {
         return clothesRepository.findAll();
     }
 
+    @PostMapping(path = "/addclothes", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Clothes> addClothes(@RequestBody Clothes clothes) {
+        Clothes saved = clothesRepository.save(clothes);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+    
+
     @PostMapping("/users/{userId}/cart/{clothesId}/add")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addOneToCart(

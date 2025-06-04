@@ -25,7 +25,7 @@ public class Clothes {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "size", nullable = false, length = 5)
+    @Column(name = "size", nullable = false, length = 15)
     private Size size;
 
     @Column(name = "for_children", nullable = false)
