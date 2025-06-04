@@ -70,6 +70,17 @@ public class ApiEndpoints {
         }
     }
 
+    @GetMapping("/clothes/{clothesId}")
+    public Clothes getClothesById(@PathVariable Long clothesId) {
+        return clothesRepository.findById(clothesId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Clothes not found with id: " + clothesId
+                        )
+                );
+    }
+
     @DeleteMapping("/users/{userId}/cart/{clothesId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeAllFromCart(
