@@ -60,8 +60,8 @@ public class ApiEndpoints {
     @PostMapping("/users/{userId}/cart/{clothesId}/removeOne")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeOneFromCart(
-            @PathVariable Long userId,
-            @PathVariable Long clothesId
+            @PathVariable("userId") Long userId,
+            @PathVariable("clothesId") Long clothesId
     ) {
         try {
             cartService.decrementItem(userId, clothesId);

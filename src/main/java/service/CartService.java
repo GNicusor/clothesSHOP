@@ -12,6 +12,7 @@ import repository.UserRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class CartService {
@@ -91,26 +92,13 @@ public class CartService {
             throw new NoSuchElementException("Cart not found for user: " + userId);
         }
 
-        // Find the CartItem whose clothes ID matches; then reduce by 1 (or remove if it hits 0)
-        boolean found = false;
-        for (CartItem ci : cart.getItems()) {
-            if (ci.getClothes().getId().equals(clothesId)) {
-                found = true;
-                int newQty = ci.getQuantity() - 1;
-                if (newQty < 1) {
-                    // if dropping below 1, remove that CartItem entirely
-                    cart.getItems().remove(ci);
-                } else {
-                    ci.setQuantity(newQty);
-                }
-                break;
-            }
-        }
-        if (!found) {
-            throw new NoSuchElementException("Item not found in cart: " + clothesId);
-        }
+        CartItem existing = cart.getItems().stream()
+                .filter(ci -> ci.getClothes().getId().equals(clothesId))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Item not found in cart: " + clothesId));
 
-        userRepo.save(user);
+        int newQty = existing.getQuantity() - 1;
+        cart.updateItemQuantity(clothesId, newQty);
     }
 
     /**
