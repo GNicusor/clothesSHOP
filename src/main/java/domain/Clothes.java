@@ -1,6 +1,7 @@
 package domain;
 
 import jakarta.persistence.*;
+import shared.Sex;
 import shared.Size;
 
 import java.math.BigDecimal;
@@ -30,6 +31,10 @@ public class Clothes {
 
     @Column(name = "for_children", nullable = false)
     private boolean forChildren;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sex", nullable = true)
+    private Sex sex;
 
     public Clothes() {};
 
@@ -75,6 +80,18 @@ public class Clothes {
 
     public void setForChildren(boolean forChildren) {
         this.forChildren = forChildren;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
     }
 
     @Override
