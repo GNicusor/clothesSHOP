@@ -19,6 +19,8 @@ import shared.LoginRequest;
 import shared.RegisterRequest;
 import shared.VerifyRequest;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -80,21 +82,31 @@ public class ControllerAuthentication {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest req) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest req) {
         Optional<User> userOpt = userRepository.findByUsername(req.getUsername());
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("There is no user with that username");
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "There is no user with that username"));
         }
         User user = userOpt.get();
         if (!user.isVerified()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("The account is not verified");
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "The account is not verified"));
         }
         if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Incorrect password");
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Incorrect password"));
         }
-        return ResponseEntity.ok("User logged in successfully");
+
+        // Build a JSON response that includes userId and username
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("userId", user.getId());
+        resp.put("username", user.getUsername());
+        resp.put("message", "User logged in successfully");
+        return ResponseEntity.ok(resp);
     }
+
 }
