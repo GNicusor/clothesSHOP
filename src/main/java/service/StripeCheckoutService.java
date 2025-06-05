@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import repository.OrderRepository;
 import domain.OrderEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,52 +32,52 @@ import java.util.stream.Collectors;
 //     * @param orderId the ID of the existing Order (which should already have items, customer info, etc.)
 //     * @return the Session’s ID (so the front-end can redirect to Stripe)
 //     */
-//    @Transactional
-//    public String createCheckoutSession(Long orderId) throws StripeException {
-//        // 1. Load the order (must exist and be in a state where payment is expected)
-//        OrderEntity orderEntity = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+////    @Transactional
+////    public String createCheckoutSession(Long orderId) throws StripeException {
+////        OrderEntity orderEntity = orderRepository.findById(orderId)
+////                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+////        if (!"PENDING".equals(orderEntity.getStatus())) {
+////            throw new IllegalStateException("Order is not in a PENDING state.");
+////        }
+////        List<SessionCreateParams.LineItem> lineItems = orderEntity.getOrderItems().stream()
+////                .map(this::toLineItem)
+////                .collect(Collectors.toList());
+////        SessionCreateParams params = SessionCreateParams.builder()
+////                .setMode(SessionCreateParams.Mode.PAYMENT)
+////                .addAllLineItem(lineItems)
+////                .setSuccessUrl(frontendUrl + "/success?session_id={CHECKOUT_SESSION_ID}")
+////                .setCancelUrl(frontendUrl + "/cart")
+////                .putMetadata("order_id", orderEntity.getId().toString())
+////                .build();
+////
+////        Session session = Session.create(params);
+////
+////        // 5) Save the Stripe session ID back to the order so the webhook can match it
+////        orderEntity.setStripeId(session.getId());
+////        orderRepository.save(orderEntity);
+////
+////        return session.getId();
+////    }
 //
-//        if (!"PENDING".equals(orderEntity)) {
-//            throw new IllegalStateException("Order is not in a PENDING state.");
-//        }
-//
-//        // 2. Build line items for Stripe
-//        List<SessionCreateParams.LineItem> lineItems = orderEntity.getItems().stream()
-//                .map(this::toLineItem)
-//                .collect(Collectors.toList());
-//
-//        // 3. Create the Checkout Session
-//        SessionCreateParams params = SessionCreateParams.builder()
-//                .setMode(SessionCreateParams.Mode.PAYMENT)
-//                .addAllLineItem(lineItems)
-//                .setSuccessUrl(frontendUrl + "/success?session_id={CHECKOUT_SESSION_ID}")
-//                .setCancelUrl(frontendUrl + "/cart")
-//                // Pass metadata so we can look up which Order this was
-//                .putMetadata("order_id", orderEntity.getId().toString())
-//                .build();
-//
-//        Session session = Session.create(params);
-//
-//        // 4. Store the session ID in our Order so the webhook can find it
-//        orderEntity.setStripeSessionId(session.getId());
-//        // (Optionally: order.setStatus("AWAITING_PAYMENT") or something)
-//        orderRepository.save(orderEntity);
-//
-//        return session.getId();
-//    }
-//
-//    /** Convert one OrderItem to a Stripe LineItem */
+//    /**
+//     * Convert one OrderItem (with BigDecimal line total in RON) into a Stripe LineItem (amount in bani).
+//     */
 //    private SessionCreateParams.LineItem toLineItem(OrderItem item) {
+//        BigDecimal lineTotalRoni = item.getLineTotal(); // e.g. 123.45
+//        BigDecimal lineTotalBani = lineTotalRoni
+//                .multiply(BigDecimal.valueOf(100))       // now 12345.00 (bani)
+//                .setScale(0, BigDecimal.ROUND_HALF_UP);  // no fractional bani
+//
+//        long unitAmountInBani = lineTotalBani.longValue();
 //        return SessionCreateParams.LineItem.builder()
-//                .setQuantity(item.getQuantity())
+//                .setQuantity(1L)
 //                .setPriceData(
 //                        SessionCreateParams.LineItem.PriceData.builder()
-//                                .setCurrency("usd") // or your currency
-//                                .setUnitAmount(item.getProduct().getUnitPriceCents())
+//                                .setCurrency("ron")       // your currency
+//                                .setUnitAmount(unitAmountInBani)
 //                                .setProductData(
 //                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
-//                                                .setName(item.getProduct().getName())
+//                                                .setName(item.getName())
 //                                                .build()
 //                                )
 //                                .build()

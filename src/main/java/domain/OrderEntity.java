@@ -1,11 +1,16 @@
 package domain;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import lombok.Builder;
+import org.hibernate.query.Order;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 
+//@Builder
 @Entity
 @Table(name = "orders")
 public class OrderEntity {
@@ -17,9 +22,39 @@ public class OrderEntity {
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
 
+    @Nullable
+    @Column(name = "stripe_id", unique = true)
+    private String stripeId;
+
+    //@Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private OrderStatus status;
+    @Column(nullable = false)
+    private Status status = Status.PENDING;
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    @Nullable
+    public String getStripeId() {
+        return stripeId;
+    }
+
+    public void setStripeId(@Nullable String stripeId) {
+        this.stripeId = stripeId;
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
+    }
 
     @OneToMany(
             mappedBy = "order",
@@ -29,13 +64,10 @@ public class OrderEntity {
     )
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    public enum Status { PENDING, PAID, FAILED}
+
     protected OrderEntity() { }
 
-    public OrderEntity(String orderId) {
-        this.orderId = Objects.requireNonNull(orderId, "Order ID cannot be null");
-        this.orderDate = LocalDateTime.now();
-        this.status = OrderStatus.PENDING;
-    }
 
     public String getOrderId() {
         return orderId;
@@ -43,14 +75,6 @@ public class OrderEntity {
 
     public LocalDateTime getOrderDate() {
         return orderDate;
-    }
-
-    public OrderStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(OrderStatus status) {
-        this.status = status;
     }
 
     public List<OrderItem> getOrderItems() {
@@ -71,6 +95,11 @@ public class OrderEntity {
         }
         return total;
     }
+
+    public String getId() {
+        return this.orderId;
+    }
+
 
     public enum OrderStatus {
         PENDING,

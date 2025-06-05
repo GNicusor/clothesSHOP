@@ -1,5 +1,6 @@
 package server;
 
+import domain.CartItem;
 import domain.Clothes;
 import domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,15 @@ public class ApiEndpoints {
         }
     }
 
+    @GetMapping("/{userId}/cart")
+    public List<CartItem> getCartOfUser(@PathVariable("userId") Long userId) {
+        try {
+            return cartService.getCartItems(userId);
+        } catch (NoSuchElementException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
+        }
+    }
+
     @GetMapping("/clothes/{clothesId}")
     public Clothes getClothesById(
             @PathVariable("clothesId") Long clothesId
@@ -82,6 +92,8 @@ public class ApiEndpoints {
                                 )
                         );
     }
+
+
 
     @DeleteMapping("/users/{userId}/cart/{clothesId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

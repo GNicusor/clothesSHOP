@@ -1,5 +1,8 @@
 package domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -16,6 +19,7 @@ public class Cart {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonBackReference
     private User owner;
 
     @OneToMany(
@@ -24,6 +28,7 @@ public class Cart {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
+    @JsonManagedReference
     private List<CartItem> items = new ArrayList<>();
 
     protected Cart() { }

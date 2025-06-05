@@ -2,6 +2,8 @@ package domain;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -31,6 +33,7 @@ public class User {
             fetch = FetchType.LAZY,
             orphanRemoval = true
     )
+    @JsonManagedReference
     private Cart cart;
 
     boolean isVerified;

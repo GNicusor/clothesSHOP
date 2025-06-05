@@ -105,7 +105,7 @@ public class OrderItem {
      * Compute the total price for this line (price × quantity).
      */
     public BigDecimal getLineTotal() {
-        return price.multiply(BigDecimal.valueOf(quantity));
+        return price.multiply(BigDecimal.valueOf(Long.valueOf(quantity)));
     }
 
     // ===== equals & hashCode =====
@@ -123,4 +123,5 @@ public class OrderItem {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }
