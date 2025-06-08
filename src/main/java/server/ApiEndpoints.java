@@ -71,6 +71,8 @@ public class ApiEndpoints {
         }
     }
 
+
+
     @GetMapping("/{userId}/cart")
     public List<CartItem> getCartOfUser(@PathVariable("userId") Long userId) {
         try {
@@ -93,13 +95,11 @@ public class ApiEndpoints {
                         );
     }
 
-
-
     @DeleteMapping("/users/{userId}/cart/{clothesId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeAllFromCart(
-            @PathVariable Long userId,
-            @PathVariable Long clothesId
+            @PathVariable("userId")   Long userId,    // added explicit name to bind correctly
+            @PathVariable("clothesId") Long clothesId // added explicit name to bind correctly
     ) {
         try {
             cartService.removeAllOfItem(userId, clothesId);
@@ -107,7 +107,6 @@ public class ApiEndpoints {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
         }
     }
-
 
 //    @GetMapping("/users/{userId}/cart")
 //    public List<Clothes> getUserCart(@PathVariable Long userId) {
