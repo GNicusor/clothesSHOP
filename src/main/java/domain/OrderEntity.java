@@ -16,8 +16,8 @@ import java.util.*;
 public class OrderEntity {
 
     @Id
-    @Column(name = "order_id", length = 36, nullable = false, updatable = false)
-    private String orderId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderId;
 
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
@@ -26,13 +26,24 @@ public class OrderEntity {
     @Column(name = "stripe_id", unique = true)
     private String stripeId;
 
+    @ManyToOne
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     //@Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.PENDING;
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public Status getStatus() {
+        return status;
     }
 
     public void setOrderItems(List<OrderItem> orderItems) {
@@ -66,10 +77,10 @@ public class OrderEntity {
 
     public enum Status { PENDING, PAID, FAILED}
 
-    protected OrderEntity() { }
+    public OrderEntity() { }
 
 
-    public String getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
@@ -96,35 +107,24 @@ public class OrderEntity {
         return total;
     }
 
-    public String getId() {
+    public Long getId() {
         return this.orderId;
     }
 
-
-    public enum OrderStatus {
-        PENDING,
-        PROCESSING,
-        SHIPPED,
-        DELIVERED,
-        FAILED,
-        CANCELLED
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        OrderEntity orderEntity = (OrderEntity) o;
-        return orderId.equals(orderEntity.orderId);
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        OrderEntity orderEntity = (OrderEntity) o;
+//        return orderId.equals(orderEntity.orderId);
+//    }
 
     @Override
     public int hashCode() {
         return Objects.hash(orderId);
     }
 
-    // ===== toString =====
 
     @Override
     public String toString() {

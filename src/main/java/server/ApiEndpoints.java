@@ -1,20 +1,27 @@
 package server;
 
-import domain.CartItem;
-import domain.Clothes;
-import domain.User;
+import com.stripe.exception.StripeException;
+import domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import repository.CartRepository;
 import repository.ClothesRepository;
+import repository.OrderRepository;
 import repository.UserRepository;
 import service.CartService;
+import service.OrderService;
+import service.StripeCheckoutService;
+import shared.OrderCreateDTO;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -25,11 +32,22 @@ public class ApiEndpoints {
     private CartService cartService;
 
     @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ClothesRepository clothesRepository;
 
+    @Autowired
+    private StripeCheckoutService stripeCheckoutService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/clothes")
     public List<Clothes> getAllClothes() {
@@ -93,7 +111,16 @@ public class ApiEndpoints {
                         );
     }
 
-
+    @DeleteMapping("/clothes/{clothesId}")
+    public void deleteClothesById(@PathVariable("clothesId") Long clothesId) {
+        if (!clothesRepository.existsById(clothesId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Clothes not found with id: " + clothesId
+            );
+        }
+        clothesRepository.deleteById(clothesId);
+    }
 
     @DeleteMapping("/users/{userId}/cart/{clothesId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -108,12 +135,55 @@ public class ApiEndpoints {
         }
     }
 
+    @GetMapping("/allUsers")
+    public List<User> getUsers() {
+        return userRepository.findAll();
+    }
 
-//    @GetMapping("/users/{userId}/cart")
-//    public List<Clothes> getUserCart(@PathVariable Long userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-//        return user.getCart();
-//    }
+    @PostMapping
+    public Map<String, String> createOrder(@RequestBody OrderCreateDTO dto) {
+        String orderId = orderService.createOrder(dto);
+        return Map.of("orderId", orderId);
+    }
+
+    @PostMapping("/orders/checkout")
+    public Map<String, Long> checkout(@RequestParam("userId") Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        OrderEntity order = new OrderEntity();
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderEntity.Status.PENDING);
+        order.setUser(user); // <-- Correct usage
+
+        for (CartItem ci : cart.getItems()) {
+            OrderItem oi = new OrderItem(ci.getClothes(), ci.getQuantity(), order);
+            order.addOrderItem(oi);
+        }
+
+        orderRepository.save(order);
+
+        return Map.of("orderId", order.getOrderId());
+    }
+
+    @PostMapping("/checkout-session/{orderId}")
+    public Map<String, String> createCheckoutSession(@PathVariable("orderId") Long orderId) throws StripeException {
+        String sessionId = stripeCheckoutService.createCheckoutSession(orderId);
+        return Map.of("sessionId", sessionId);
+    }
+
+    // 2. Get order by ID (for admin/success page/history)
+    @GetMapping("/{orderId}")
+    public OrderEntity getOrder(@PathVariable Long orderId) {
+        return orderService.getOrderById(orderId);
+    }
+
+    // 3. Get orders for user (optional, for user order history)
+    @GetMapping("/user/{userId}")
+    public List<OrderEntity> getOrdersForUser(@PathVariable Long userId) {
+        return orderService.getOrdersByUser(userId);
+    }
 
 }

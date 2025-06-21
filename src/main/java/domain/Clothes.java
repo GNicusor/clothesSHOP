@@ -29,6 +29,9 @@ public class Clothes {
     @Column(name = "size", nullable = false, length = 15)
     private Size size;
 
+    @Column(name = "stock", nullable = false)
+    private int stock;
+
     @Column(name = "for_children", nullable = false)
     private boolean forChildren;
 
@@ -36,7 +39,26 @@ public class Clothes {
     @Column(name = "sex", nullable = true)
     private Sex sex;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public Clothes() {};
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
 
     public Long getId() {
         return id;
